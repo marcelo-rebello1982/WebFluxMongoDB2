@@ -163,17 +163,6 @@ public class Author extends BaseEntity implements Serializable {
         newAuthor.setCpf(getCpf());
         return newAuthor;
     }
-//
-//    public Author mappingAuthorToEntity(Author a) {
-//        Author author = new Author();
-//        author.setId(a.getId());
-//        author.setName(a.getName());
-//        author.setBiography(a.getBiography());
-//        author.setNationality(a.getNationality());
-//        author.setBirthdate(a.getBirthdate());
-//        return author;
-//    }
-
 
     static Author mappingEntityToAuthor(Author author) {
         return new Author(
@@ -184,6 +173,14 @@ public class Author extends BaseEntity implements Serializable {
                 author.getEmail(),
                 author.getBirthdate());
     }
-
-
+    //
+//    public Author mappingAuthorToEntity(Author a) {
+//        Author author = new Author();
+//        author.setId(a.getId());
+//        author.setName(a.getName());
+//        author.setBiography(a.getBiography());
+//        author.setNationality(a.getNationality());
+//        author.setBirthdate(a.getBirthdate());
+//        return author;
+//    }
 }
