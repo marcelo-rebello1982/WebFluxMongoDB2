@@ -37,7 +37,7 @@ public class AuthorRequestDTO implements Serializable {
 
     @Column @NotNull
     @Past(message = "The date of bith must be in the past")
-    @JsonFormat(pattern = "dd-MM-yyyy")
+    @JsonFormat(shape = JsonFormat.Shape.STRING , pattern = "dd-MM-yyyy")
     private LocalDate birthdate;
 
 

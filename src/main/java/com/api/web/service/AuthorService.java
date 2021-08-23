@@ -17,6 +17,8 @@ import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +32,6 @@ public class AuthorService {
     @Autowired
     private AuthorReactiveRepository authorReactiveRepository;
 
-
     public Flux<Author> findAll() {
         return authorReactiveRepository.findAll();
     }
@@ -42,16 +43,27 @@ public class AuthorService {
                             .defaultIfEmpty(new ResponseEntity<>
                                 (HttpStatus.NOT_FOUND));
     }
-
-    public Mono<ResponseEntity<List<Author>>> findByName(String name) {
-        return authorReactiveRepository.findByNameContainingIgnoreCase(name)
-                .collectList().flatMap(users -> {
-                    if (users.isEmpty()) {
-                        return Mono.just(notFound().build());
-                        } else {
-                            return Mono.just(ok().body(users));
-                        }});
+        public Flux<Author> findByName(@NotNull String name) {
+        return Flux.from(authorReactiveRepository.findByNameContainingIgnoreCase(name))
+                .map(MapperUtility::mappingAuthorToEntity);
     }
+
+
+
+//    public Mono<ResponseEntity<List<Author>>> findByName(String name) {
+//        return authorReactiveRepository.findByNameContainingIgnoreCase(name)
+//                .collectList().flatMap(users -> {
+//                    if (users.isEmpty()) {
+//                        return Mono.just(notFound().build());
+//                    } else {
+//                        return Mono.just(ok().body(users));
+//                    }});
+//    }
+
+
+
+
+
 
     @Transactional
     public Mono<Author> save(Author author) {
@@ -105,7 +117,7 @@ public class AuthorService {
                 .flatMap(existingAuthor -> authorReactiveRepository
                         .delete(existingAuthor)
                             .then(Mono.just(new ResponseEntity<Void>(HttpStatus.OK))))
-                                .defaultIfEmpty(new ResponseEntity<Void>(HttpStatus.NOT_FOUND));
+                                .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     private List<Author> listAllAuthors() {
@@ -117,15 +129,6 @@ public class AuthorService {
     public <T> Mono<T> monoResponseNotFoundException() {
         return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Author Not Found"));
     }
-
-
-
-    //         */
-//    public Flux<Owner> findOwnersByName(@NotBlank String searchString) {
-//        return Flux.from(ownerDao.searchByOwnerName(searchString)) // look for entities
-//                .map(MappingUtils::mapEntityAsOwner);           // and map for exposition layer
-//    }
-
 
 
 

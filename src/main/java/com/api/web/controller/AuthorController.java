@@ -78,7 +78,6 @@ public class AuthorController {
         return authorService.findById(id);
 
     }
-
     @GetMapping("/author/name/{name}")
     @ApiOperation(value = "Buscar author por nome, parte do nome.")
     @ApiResponses(value = {
@@ -87,9 +86,29 @@ public class AuthorController {
             @ApiResponse(code = 403, message = "Você não tem permissão para acessar este recurso"),
             @ApiResponse(code = 500, message = "Foi gerada uma exceção de sistema"),
     })
-    public Mono<ResponseEntity<List<Author>>> findByNameLike(@PathVariable("name") String name) {
+        public Flux<Author> findByNameLike(@PathVariable("name") String name) {
         return authorService.findByName(name);
     }
+
+//    public Mono<ResponseEntity<List<Author>>> findByNameLike(@PathVariable("name") String name) {
+//        return authorService.findByName(name);
+//    }
+
+
+
+
+    //    @GetMapping("/author/name/{name}")
+//    @ApiOperation(value = "Buscar author por nome, parte do nome.")
+//    @ApiResponses(value = {
+//            @ApiResponse(code = 400, message = "Algum problema na requisição"),
+//            @ApiResponse(code = 404, message = "Categoria Não existe"),
+//            @ApiResponse(code = 403, message = "Você não tem permissão para acessar este recurso"),
+//            @ApiResponse(code = 500, message = "Foi gerada uma exceção de sistema"),
+//    })
+//    public Flux<Author> findByNameLike(@PathVariable("name") String name) {
+//        return authorService.findByName(name);
+//    }
+
 
     @PostMapping("/author/save")
     @ApiOperation(value = "Adiciona ou Altera um Author já cadastrado")

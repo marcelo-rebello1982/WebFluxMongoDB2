@@ -1,2 +1,5 @@
-package com.api.web.exceptions;public class BaseEnumCode {
+package com.api.web.exceptions;
+
+public interface BaseEnumCode<T> {
+    T getValue();
 }
