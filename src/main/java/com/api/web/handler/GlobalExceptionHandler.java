@@ -67,6 +67,8 @@ public class GlobalExceptionHandler {
 
     private String toString(WebExchangeBindException ex) {
         return ex.getFieldErrors().stream()
-                .map(e -> e.getField() + ":" + e.getDefaultMessage()).reduce("", (s1, s2) -> s1 + "\n" + s2);
+                .map(e -> e.getField() + ":" +
+                        e.getDefaultMessage())
+                            .reduce("", (s1, s2) -> s1 + "\n" + s2);
     }
 }
