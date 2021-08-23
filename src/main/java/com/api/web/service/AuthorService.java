@@ -39,8 +39,8 @@ public class AuthorService {
         return authorReactiveRepository.findById(id)
                 .map(author ->
                         new ResponseEntity<Author>(author, HttpStatus.OK))
-                .defaultIfEmpty(new ResponseEntity<>
-                        (HttpStatus.NOT_FOUND));
+                            .defaultIfEmpty(new ResponseEntity<>
+                                (HttpStatus.NOT_FOUND));
     }
 
     public Mono<ResponseEntity<List<Author>>> findByName(String name) {
@@ -48,9 +48,9 @@ public class AuthorService {
                 .collectList().flatMap(users -> {
                     if (users.isEmpty()) {
                         return Mono.just(notFound().build());
-                    } else {
-                        return Mono.just(ok().body(users));
-                    }});
+                        } else {
+                            return Mono.just(ok().body(users));
+                                }});
     }
 
     @Transactional
@@ -73,13 +73,13 @@ public class AuthorService {
                 .map(totalElements -> {
                     result.setTotalElements(totalElements);
                        return totalElements;
-                })
-                .flatMapMany(author -> authorReactiveRepository.retrieveAllAuthors(
-                        PageRequest.of(offset, limit)))
-                            .collectList()
-                                .map(data -> {
-                                    result.setAuthors(data);
-                                        return result;
+                           })
+                                .flatMapMany(author -> authorReactiveRepository.retrieveAllAuthors(
+                                    PageRequest.of(offset, limit)))
+                                        .collectList()
+                                            .map(data -> {
+                                                result.setAuthors(data);
+                                                    return result;
                 });
     }
 
@@ -98,9 +98,9 @@ public class AuthorService {
               });
     }
 
-    public Mono<ResponseEntity<Void>> delete(@PathVariable ("id") @Parameter(
-            required = true, example = "1ff2gt9df544cc4gr87469aa7d56e",
-                description = "Unique identifier of a Author" ) String id ) {
+    public Mono<ResponseEntity<Void>> delete(@PathVariable ("id") @Parameter(required = true,
+                                                                    example = "1ff2gt9df544cc4gr87469aa7d56e",
+                                                                      description = "Unique identifier of a Author" ) String id ) {
         return authorReactiveRepository.findById(id)
                 .flatMap(existingAuthor -> authorReactiveRepository
                         .delete(existingAuthor)
@@ -110,8 +110,8 @@ public class AuthorService {
 
     private List<Author> listAllAuthors() {
         List<Author> authors = new ArrayList<>();
-        authors.add(new Author());
-        return authors;
+            authors.add(new Author());
+                return authors;
     }
 
     public <T> Mono<T> monoResponseNotFoundException() {
