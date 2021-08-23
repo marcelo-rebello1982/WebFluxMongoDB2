@@ -29,7 +29,7 @@ public class GlobalExceptionHandler extends AbstractErrorWebExceptionHandler {
     }
 
     private Mono<ServerResponse> formatErrorResponse(ServerRequest request) {
-        Map<String,Object> errorAttributesMap = getErrorAttributes(request, ErrorAttributeOptions.defaults());
+        Map<String,Object> errorAttributesMap = getErrorAttributes(request, ErrorAttributeOptions.of(ErrorAttributeOptions.Include.STACK_TRACE));
         int status = (int) Optional.ofNullable(errorAttributesMap
             .get("status")).orElse(500);
                 return ServerResponse.status(status)

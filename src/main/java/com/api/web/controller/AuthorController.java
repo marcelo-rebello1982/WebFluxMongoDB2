@@ -6,9 +6,11 @@ import com.api.web.mapper.AuthorMapper;
 import com.api.web.model.Author;
 import com.api.web.response.AuthorResponse;
 import com.api.web.service.AuthorService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +22,13 @@ import javax.validation.Valid;
 import java.util.List;
 
 import static org.springframework.http.ResponseEntity.ok;
+import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 
 @RestController
+//@RequestMapping("/com/api/web/controller")
+@Api(value = "/web/controller", tags = {"API Author"})
+//@CrossOrigin(methods = {POST,PUT,GET,DELETE}, maxAge = 3600, allowedHeaders
+//        = {"x-request-with", "origin", "conten-type","accept"}, origins = "*")
 public class AuthorController {
 
     @Autowired
@@ -30,8 +37,8 @@ public class AuthorController {
     @Autowired
     private AuthorMapper authorMapper;
 
-    @GetMapping("/author/findAll")
-    @ApiOperation(value = "Retorna uma lista de author")
+    @GetMapping(value = "/author/findAll", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Retorna uma lista de author", response =  AuthorRequestDTO.class)
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "Algum problema na requisição"),
             @ApiResponse(code = 200, message = "Retorna uma lista de AuthoresS"),
@@ -56,16 +63,17 @@ public class AuthorController {
         return ok(authorService.findAll(offset, limit));
     }
 
-    @GetMapping("/author/{id}")
-    @ApiOperation(value = "Buscar author por id")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Resposta com sucesso", response = Author.class),
+    @GetMapping(value = "/author/{id}", produces =  APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Buscar author por id", response =  AuthorRequestDTO.class)
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Resposta com sucesso"),
             @ApiResponse(code = 400, message = "Algum problema na requisição"),
             @ApiResponse(code = 404, message = "Categoria Não existe"),
             @ApiResponse(code = 403, message = "Você não tem permissão para acessar este recurso"),
-            @ApiResponse(code = 500, message = "Foi gerada uma exceção de sistema"),
-    })
-    public Mono<ResponseEntity<Author>> findById(@PathVariable String id) {
+            @ApiResponse(code = 500, message = "Foi gerada uma exceção de sistema")})
+    public Mono<ResponseEntity<Author>> findById(@PathVariable ("id") @Parameter (
+    required = true, example = "1ff32db9drdc0d11cba376919dd7c5e",
+    description = "Unique identifier of an Author") String id) {
         return authorService.findById(id);
 
     }
@@ -103,8 +111,10 @@ public class AuthorController {
             @ApiResponse(code = 404, message = "Author não existe"),
             @ApiResponse(code = 500, message = "Foi gerada uma exceção de sistema"),
     })
-    public Mono<ResponseEntity<Void>> delete(@PathVariable String id) {
-        return authorService.delete(id);
+    public Mono<ResponseEntity<Void>> delete(@PathVariable("id") @Parameter(
+            required = true, example = "1ffedse9gg44dd1ba3719466ee8x5g",
+                description = "Unique identifier of a Author") String id){
+                    return authorService.delete(id);
     }
 
     private boolean isNotAuthorized(CrudOperation operation, String id) {
@@ -116,3 +126,9 @@ public class AuthorController {
         return false;
     }
 }
+
+//    public Flux<Owner> searchOwnersByName(@PathVariable("lastName") String searchString) {
+//        return ownerServices.findOwnersByName(searchString);
+//    }
+
+

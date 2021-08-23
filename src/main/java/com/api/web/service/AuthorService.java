@@ -3,6 +3,7 @@ package com.api.web.service;
 import com.api.web.model.Author;
 import com.api.web.repository.AuthorReactiveRepository;
 import com.api.web.response.AuthorResponse;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +28,7 @@ public class AuthorService {
 
     @Autowired
     private AuthorReactiveRepository authorReactiveRepository;
+
 
     public Flux<Author> findAll() {
         return authorReactiveRepository.findAll();
@@ -57,7 +59,7 @@ public class AuthorService {
                      .switchIfEmpty(Mono.error
                          (new Exception("Author not found in id : " + author.getId())))
                              .doOnSuccess(newAuthor -> {
-                                 newAuthor = mappingAuthorToEntity(author, newAuthor);
+                                 newAuthor = author.mappingAuthorToEntity(newAuthor);
                                     authorReactiveRepository.save(newAuthor).subscribe();
             });
         }
@@ -71,7 +73,7 @@ public class AuthorService {
                     result.setTotalElements(totalElements);
                        return totalElements;
                 })
-                .flatMapMany(el -> authorReactiveRepository.retrieveAllAuthors(
+                .flatMapMany(author -> authorReactiveRepository.retrieveAllAuthors(
                         PageRequest.of(offset, limit)))
                             .collectList()
                                 .map(data -> {
@@ -86,7 +88,7 @@ public class AuthorService {
               .map(totalElements -> {
                   result.setTotalElements(totalElements);
                   return result;
-                      }).flatMapMany(a ->
+                      }).flatMapMany(author ->
                          authorReactiveRepository
                             .findByNameContainingIgnoreCase(name, PageRequest.of(offset, limit)))
                                 .collectList().map(data -> {
@@ -95,39 +97,14 @@ public class AuthorService {
               });
     }
 
-    public Mono<ResponseEntity<Void>> delete(@PathVariable String id) {
+    public Mono<ResponseEntity<Void>> delete(@PathVariable ("id") @Parameter(
+            required = true, example = "1ff2gt9df544cc4gr87469aa7d56e",
+                description = "Unique identifier of a Author" ) String id ) {
         return authorReactiveRepository.findById(id)
                 .flatMap(existingAuthor -> authorReactiveRepository
                         .delete(existingAuthor)
                             .then(Mono.just(new ResponseEntity<Void>(HttpStatus.OK))))
-                                .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    }
-
-    public Author mappingAuthorToEntity(Author a) {
-        Author author = new Author();
-        author.setId(a.getId());
-        author.setName(a.getName());
-        author.setBiography(a.getBiography());
-        author.setNationality(a.getNationality());
-        author.setBirthdate(a.getBirthdate());
-        return author;
-    }
-
-    static Author mappingEntityToAuthor(Author author) {
-        return new Author(
-                author.getId(),
-                author.getName(),
-                author.getBiography(),
-                author.getNationality(),
-                author.getBirthdate());
-    }
-
-    private Author mappingAuthorToEntity(Author old, Author updated) {
-        updated.setName(old.getName());
-        updated.setBirthdate(old.getBirthdate());
-        updated.setBiography(old.getBiography());
-        updated.setNationality(old.getNationality());
-        return updated;
+                                .defaultIfEmpty(new ResponseEntity<Void>(HttpStatus.NOT_FOUND));
     }
 
     private List<Author> listAllAuthors() {
@@ -139,6 +116,19 @@ public class AuthorService {
     public <T> Mono<T> monoResponseNotFoundException() {
         return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Author Not Found"));
     }
+
+
+
+    //         */
+//    public Flux<Owner> findOwnersByName(@NotBlank String searchString) {
+//        return Flux.from(ownerDao.searchByOwnerName(searchString)) // look for entities
+//                .map(MappingUtils::mapEntityAsOwner);           // and map for exposition layer
+//    }
+
+
+
+
+
 //
 //    public AuthorResponse loadAuthorsResponse(Integer offset, Integer limit) {
 //        Page<Author> authorPage = authorMongoRepository.findAll(PageRequest.of(offset, limit));
