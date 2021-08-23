@@ -1,39 +1,72 @@
-//package com.api.web.handler;
-//
-//import org.springframework.boot.autoconfigure.web.ResourceProperties;
-//import org.springframework.boot.autoconfigure.web.reactive.error.AbstractErrorWebExceptionHandler;
-//import org.springframework.boot.web.error.ErrorAttributeOptions;
-//import org.springframework.boot.web.reactive.error.ErrorAttributes;
-//import org.springframework.context.ApplicationContext;
-//import org.springframework.core.annotation.Order;
-//import org.springframework.http.MediaType;
-//import org.springframework.http.codec.ServerCodecConfigurer;
-//import org.springframework.stereotype.Component;
-//import org.springframework.web.reactive.function.BodyInserters;
-//import org.springframework.web.reactive.function.server.*;
-//import reactor.core.publisher.Mono;
-//
-//import java.util.Map;
-//import java.util.Optional;
-//
-//@Component @Order(-2)
-//public class GlobalExceptionHandler extends AbstractErrorWebExceptionHandler {
-//
-//    public GlobalExceptionHandler(ErrorAttributes errorAttributes, ResourceProperties resourceProperties, ApplicationContext applicationContext, ServerCodecConfigurer codecConfigurer) {
-//        super(errorAttributes,resourceProperties,applicationContext);
-//        this.setMessageWriters(codecConfigurer.getWriters());
-//    }
-//
-//    protected RouterFunction<ServerResponse> getRoutingFunction(ErrorAttributes errorAttributes) {
-//        return RouterFunctions.route(RequestPredicates.all(),this::formatErrorResponse);
-//    }
-//
-//    private Mono<ServerResponse> formatErrorResponse(ServerRequest request) {
-//        Map<String,Object> errorAttributesMap = getErrorAttributes(request, ErrorAttributeOptions.of(ErrorAttributeOptions.Include.STACK_TRACE));
-//        int status = (int) Optional.ofNullable(errorAttributesMap
-//            .get("status")).orElse(500);
-//                return ServerResponse.status(status)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                            .body(BodyInserters.fromValue(errorAttributesMap));
-//    }
-//}
+package com.api.web.handler;
+
+
+import com.api.web.exceptions.AppBaseException;
+import com.api.web.exceptions.CheckException;
+import com.api.web.response.AppErrorResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.support.WebExchangeBindException;
+import org.springframework.web.server.ServerWebExchange;
+
+import java.util.Locale;
+
+@RestControllerAdvice
+@Slf4j
+public class GlobalExceptionHandler {
+
+      private MessageSource messageSource;
+
+
+    @ExceptionHandler({AppBaseException.class})
+    public ResponseEntity<AppErrorResponse> handleAppBaseException(
+            AppBaseException ex, Locale locale, ServerWebExchange exchange) {
+
+        if (ex.getCause() != null) {
+            log.error(ex.getLocalizedMessage(), ex);
+        }
+
+        HttpStatus status = ex.getStatus() != null
+                ? ex.getStatus()
+                : HttpStatus.BAD_REQUEST;
+
+        String errorMessage = ex.getErrorCode() != null
+                ? messageSource.getMessage(ex.getErrorCode()
+                    .getValue(), ex.getArgs(), locale)
+                        : null;
+
+        return new ResponseEntity<>(
+                AppErrorResponse.builder()
+                        .timestamp(System.currentTimeMillis())
+                            .path(exchange.getRequest().getPath().value())
+                                .status(status.value())
+                                    .error(status.getReasonPhrase())
+                                        .message(errorMessage != null ? errorMessage : ex.getLocalizedMessage())
+                                            .requestId(exchange.getRequest().getId())
+                                                .build(), status
+        );
+    }
+
+    @ExceptionHandler(WebExchangeBindException.class)
+    public ResponseEntity<String> handlerBindException(WebExchangeBindException ex) {
+        return new ResponseEntity<>(toString(ex), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(CheckException.class)
+    public ResponseEntity<String> handlerCheckException(CheckException ex) {
+        return new ResponseEntity<>(toString(ex), HttpStatus.BAD_REQUEST);
+    }
+
+    private String toString(CheckException ex) {
+        return ex.getFieldName() + "：" + ex.getFieldValue();
+    }
+
+    private String toString(WebExchangeBindException ex) {
+        return ex.getFieldErrors().stream()
+                .map(e -> e.getField() + ":" + e.getDefaultMessage()).reduce("", (s1, s2) -> s1 + "\n" + s2);
+    }
+}

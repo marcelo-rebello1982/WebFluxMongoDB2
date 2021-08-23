@@ -11,9 +11,7 @@ import lombok.Getter;
 public class AppBaseException extends RuntimeException implements Supplier<RuntimeException> {
 
     private HttpStatus status = HttpStatus.BAD_REQUEST;
-
     private ErrorCode errorCode;
-
     private Object[] args;
 
     public AppBaseException(HttpStatus status, ErrorCode code) {

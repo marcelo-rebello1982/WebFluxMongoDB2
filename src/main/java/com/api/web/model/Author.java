@@ -1,7 +1,6 @@
 package com.api.web.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import org.hibernate.validator.constraints.br.CPF;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.persistence.Column;
@@ -9,38 +8,28 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 
 @Document
 public class Author extends BaseEntity implements Serializable {
 
-    @Id
-    private String id;
+    @Id private String id;
 
-    @Column
-    private String name;
+    @Column private String name;
 
-    @CPF(message = "Invalid CPF")
-    @Column(unique = true, nullable = true)
-    private String cpf;
+    @Column(unique = true, nullable = true) private String cpf;
 
-    @Column
-    private String nationality;
+    @Column private String nationality;
 
-    @Column
-    private String biography;
+    @Column private String biography;
 
-    @Column
-    private String email;
+    @Column private String email;
 
     @Column @NotNull
     @JsonFormat(shape = JsonFormat.Shape.STRING , pattern = "dd-MM-yyyy")
     private LocalDate birthdate;
 
-    @ManyToOne
-    private Category category;
+    @ManyToOne private Category category;
 
     public Author() {
     }

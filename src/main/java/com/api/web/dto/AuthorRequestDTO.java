@@ -15,28 +15,27 @@ public class AuthorRequestDTO implements Serializable {
 
     private String id;
 
-    @Length(min =3 , max = 50, message = "Max 50 caracteres")
-    @NotEmpty(message = "Campo nome é obrigatório")
+    @NotEmpty(message = " ") @Length(min =3 , max = 50, message = " campo é obrigatório , tamanho máximo de 50 caracteres")
     private String name;
 
     @CPF(message = "Invalid CPF")
     @Column(unique = true, nullable = true)
+    @Length(max = 11, message = " campo é obrigatório")
     private String cpf;
 
-    @Length(min =3 ,max = 50, message = "Max 50 caracteres")
-    @NotEmpty(message = "field nationality can not be empty")
+    @NotEmpty(message = " ") @Length(min =3 ,max = 50, message = " campo é obrigatório, tamanho máximo de 50 caracteres")
     private String nationality;
 
-    @Length(min =3 ,max = 250, message = "Max 250 caracteres")
-    @NotEmpty(message = "field biography can not be empty")
+    @NotEmpty(message = " ") @Length(min =3 ,max = 250, message = " campo é obrigatório, tamanho máximo de 250 caracteres")
     private String biography;
 
-    @Column
-    @Email(message = "invalid e-mail", flags = {Pattern.Flag.CASE_INSENSITIVE})
+
+    @Column @Email(message = " formato de email inválido", flags = {Pattern.Flag.CASE_INSENSITIVE})
+    @NotEmpty(message = " ") @Length(min =10 ,max = 50, message = " campo é obrigatório, tamanho máximo de 250 caracteres")
     private String email;
 
     @Column @NotNull
-    @Past(message = "The date of bith must be in the past")
+    @Past(message = " data de nascimento posterior a data atual")
     @JsonFormat(shape = JsonFormat.Shape.STRING , pattern = "dd-MM-yyyy")
     private LocalDate birthdate;
 
