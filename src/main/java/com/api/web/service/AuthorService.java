@@ -50,7 +50,7 @@ public class AuthorService {
                         return Mono.just(notFound().build());
                         } else {
                             return Mono.just(ok().body(users));
-                                }});
+                        }});
     }
 
     @Transactional
@@ -80,7 +80,7 @@ public class AuthorService {
                                             .map(data -> {
                                                 result.setAuthors(data);
                                                     return result;
-                });
+                           });
     }
 
     public Mono<AuthorResponse> findAllByName(Integer offset,Integer limit, String name) {
@@ -95,7 +95,7 @@ public class AuthorService {
                                 .collectList().map(data -> {
                                     result.setAuthors(data);
                                         return  result;
-              });
+                      });
     }
 
     public Mono<ResponseEntity<Void>> delete(@PathVariable ("id") @Parameter(required = true,
